@@ -9,6 +9,7 @@ class BaseState(object):
         self.transitions = []
         self.search = None
         self.state_name = "ERROR: BaseState"
+        self.cost_threshold = 1000
 
     def get_state(self, bot_state):
         """
@@ -94,7 +95,6 @@ class BaseState(object):
         x = bot_state.hero.x
         y = bot_state.hero.y
         hero_tiles = set()
-        cost_threshold = 1000
 
         for hero in bot_state.game.heroes:
             if hero == bot_state.hero:
@@ -112,10 +112,11 @@ class BaseState(object):
         # Compute path to the target
         path, cost = self.search.find(x, y, x_, y_, hero_tiles)
         print("Path found with cost {}".format(cost))
-        if cost > cost_threshold:
+        if cost > self.cost_threshold:
+            self.cost_threshold *= 2
             print("Standing still")
             return 'Stay'
-
+        self.cost_threshold = 1000
         # Send command to follow that path
         if path is None:
             return
@@ -145,6 +146,7 @@ class BaseState(object):
 
         # Order mines by distance
         mines = vin.utils.order_by_distance(x, y, bot_state.game.mines)
+
         for mine in mines:
 
             # Grab nearest mine that is not owned by this hero

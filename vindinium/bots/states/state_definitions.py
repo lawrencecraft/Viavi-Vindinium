@@ -19,7 +19,9 @@ class GoToMineState(BaseState):
         super(GoToMineState, self).__init__()
         self.state_name = "GoToMineState"
         self.transitions = [
-            Transition(self.hero_health_is_less_than(20), lambda: GoToTavernState()),
+            Transition(lambda t:
+                       self.hero_health_is_less_than(20)(t) and
+                       self.gold_is_greater_than(2)(t), lambda: GoToTavernState()),
             Transition(lambda t: self.hero_health_is_less_than(70)(t) and
                                  self.nearest_tavern_is()(t) == 1 and
                                  self.gold_is_greater_than(2)(t),
