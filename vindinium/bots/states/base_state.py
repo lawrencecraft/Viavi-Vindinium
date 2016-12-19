@@ -90,7 +90,6 @@ class BaseState(object):
             return min(tavern_distances)
         return nearest_tavern_internal
 
-
     def _go_to(self, bot_state, x_, y_):
         x = bot_state.hero.x
         y = bot_state.hero.y
@@ -115,7 +114,7 @@ class BaseState(object):
         if cost > self.cost_threshold:
             self.cost_threshold *= 2
             print("Standing still")
-            return 'Stay'
+            return 'Stay', cost
         self.cost_threshold = 1000
         # Send command to follow that path
         if path is None:
@@ -124,7 +123,7 @@ class BaseState(object):
         elif len(path) > 0:
             x_, y_ = path[0]
 
-        return vin.utils.path_to_command(x, y, x_, y_)
+        return vin.utils.path_to_command(x, y, x_, y_), cost
 
     def go_to_nearest_tavern(self, bot_state):
         x = bot_state.hero.x
@@ -132,11 +131,17 @@ class BaseState(object):
 
         # Order taverns by distance
         taverns = vin.utils.order_by_distance(x, y, bot_state.game.taverns)
-        for tavern in taverns:
-            command = self._go_to(bot_state, tavern.x, tavern.y)
+        tavern_list = taverns[:5]
+        min_cost = 999999999
+        final_command = None
+        for tavern in tavern_list:
+            command, cost = self._go_to(bot_state, tavern.x, tavern.y)
+            if cost < min_cost:
+                min_cost = cost
+                final_command = command
 
-            if command:
-                return command
+        if final_command:
+            return final_command
 
         return self._random()
 
@@ -151,7 +156,7 @@ class BaseState(object):
 
             # Grab nearest mine that is not owned by this hero
             if mine.owner != bot_state.hero.id:
-                command = self._go_to(bot_state, mine.x, mine.y)
+                command, cost = self._go_to(bot_state, mine.x, mine.y)
 
                 if command:
                     return command
