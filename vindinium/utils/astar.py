@@ -87,8 +87,8 @@ class AStar(object):
             # Children
             for x_, y_ in self.__neighbors(x, y, visited):
                 tile = map[x_, y_]
-                if (x, y) in player_tiles:
-                    print("This is a player tile: {} {}", x, y)
+                # if (x, y) in player_tiles:
+                #     print("This is a player tile: {} {}", x, y)
                 # g_ = g + (cost_avoid if tile in self.avoid_tiles else cost_move)
                 g_ = g + get_cost(x, y, tile)
                 h_ = abs(x_-x1)+abs(y_-y1)

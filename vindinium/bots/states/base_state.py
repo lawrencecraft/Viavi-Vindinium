@@ -111,10 +111,10 @@ class BaseState(object):
         # Compute path to the target
         path, cost = self.search.find(x, y, x_, y_, hero_tiles)
         print("Path found with cost {}".format(cost))
-        if cost > self.cost_threshold:
-            self.cost_threshold *= 2
-            print("Standing still")
-            return 'Stay', cost
+        # if cost > self.cost_threshold:
+        #     self.cost_threshold *= 2
+        #     print("Standing still")
+        #     return 'Stay', cost
         self.cost_threshold = 1000
         # Send command to follow that path
         if path is None:
@@ -150,17 +150,19 @@ class BaseState(object):
         y = bot_state.hero.y
 
         # Order mines by distance
-        mines = vin.utils.order_by_distance(x, y, bot_state.game.mines)
+        mines = [m for m in vin.utils.order_by_distance(x, y, bot_state.game.mines) if m.owner != bot_state.hero.id]
+        mines_to_search = mines[:5]
+        min_cost = 9999999999
+        final_command = None
+        for mine in mines_to_search:
+            command, cost = self._go_to(bot_state, mine.x, mine.y)
 
-        for mine in mines:
+            if cost < min_cost and command:
+                final_command = command
+                min_cost = cost
 
-            # Grab nearest mine that is not owned by this hero
-            if mine.owner != bot_state.hero.id:
-                command, cost = self._go_to(bot_state, mine.x, mine.y)
-
-                if command:
-                    return command
-
+        if final_command:
+            return final_command
         return self._random()
 
 

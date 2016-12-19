@@ -6,6 +6,7 @@ def main():
     client = vindinium.Client(
         server='http://aigamesvm:9000',
         key='sui35va8',
+        # key='vibet5m0',
         mode='arena', #or training
         n_turns=300,
         open_browser=True
