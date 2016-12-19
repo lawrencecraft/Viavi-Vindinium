@@ -63,12 +63,58 @@ class BaseState(object):
             return bot_state.hero.life > health_num
         return hero_health_is_greater_than_internal
 
+    @staticmethod
+    def gold_is_greater_than(num_gold):
+        def gold_is_greater_than_internal(bot_state):
+            """
+
+            :type bot_state: BaseBot
+            :param bot_state:
+            :return:
+            """
+            return bot_state.hero.gold > num_gold
+        return gold_is_greater_than_internal
+
+    @staticmethod
+    def nearest_tavern_is():
+        def nearest_tavern_internal(bot_state):
+            """
+
+            :type bot_state: BaseBot
+            :param bot_state:
+            :return:
+            """
+            tavern_distances = [vin.utils.distance_manhattan(bot_state.hero.x, bot_state.hero.y, t.x, t.y)
+                                for t in bot_state.game.taverns]
+            return min(tavern_distances)
+        return nearest_tavern_internal
+
+
     def _go_to(self, bot_state, x_, y_):
         x = bot_state.hero.x
         y = bot_state.hero.y
+        hero_tiles = set()
+        cost_threshold = 1000
+
+        for hero in bot_state.game.heroes:
+            if hero == bot_state.hero:
+                continue
+            hero_tiles.add((hero.x, hero.y))
+            hero_tiles.add((hero.x+1, hero.y))
+            hero_tiles.add((hero.x-1, hero.y))
+            hero_tiles.add((hero.x, hero.y-1))
+            hero_tiles.add((hero.x, hero.y+1))
+            hero_tiles.add((hero.x-1, hero.y-1))
+            hero_tiles.add((hero.x+1, hero.y-1))
+            hero_tiles.add((hero.x-1, hero.y+1))
+            hero_tiles.add((hero.x+1, hero.y+1))
 
         # Compute path to the target
-        path = self.search.find(x, y, x_, y_)
+        path, cost = self.search.find(x, y, x_, y_, hero_tiles)
+        print("Path found with cost {}".format(cost))
+        if cost > cost_threshold:
+            print("Standing still")
+            return 'Stay'
 
         # Send command to follow that path
         if path is None:
@@ -109,6 +155,7 @@ class BaseState(object):
                     return command
 
         return self._random()
+
 
     def _random(self):
         return random.choice(['Stay', 'North', 'West', 'East', 'South'])

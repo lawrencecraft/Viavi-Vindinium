@@ -24,6 +24,7 @@ class AStar(object):
             map (vindinium.models.Map): the map instance.
         '''
         self.cost_avoid = 4
+        self.cost_player = 1000
         self.cost_move = 1
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
         if use_avoid_tiles:
@@ -32,7 +33,7 @@ class AStar(object):
             self.avoid_tiles = []
         self._map = map
 
-    def find(self, x0, y0, x1, y1):
+    def find(self, x0, y0, x1, y1, player_tiles=[]):
         '''Find a path between (x0, y0) and (x1, y1).
 
         Args:
@@ -47,6 +48,15 @@ class AStar(object):
               include the goal.
             (None) otherwise.
         '''
+
+        def get_cost(current_x, current_y, current_tile):
+            if current_tile in self.avoid_tiles:
+                return self.cost_avoid
+            if (current_x, current_y) in player_tiles:
+                print("{}, {} are are in the enemy player, adding {} to cost", current_x, current_y, self.cost_player)
+                return self.cost_player
+            return self.cost_move
+
         # To avoid access on the dot
         cost_move = self.cost_move
         cost_avoid = self.cost_avoid
@@ -62,6 +72,7 @@ class AStar(object):
         queue = HeapQueue()
         visited = [(x0, y0)]
         state = None
+        final_cost = 0
         
         queue.push(start, 0)
         while not queue.is_empty():
@@ -70,12 +81,16 @@ class AStar(object):
 
             # Goal
             if (x==x1 and y==y1) or (adjacent and (abs(x-x1)+abs(y-y1))==1):
+                final_cost = g
                 break
 
             # Children
             for x_, y_ in self.__neighbors(x, y, visited):
                 tile = map[x_, y_]
-                g_ = g + (cost_avoid if tile in self.avoid_tiles else cost_move)
+                if (x, y) in player_tiles:
+                    print("This is a player tile: {} {}", x, y)
+                # g_ = g + (cost_avoid if tile in self.avoid_tiles else cost_move)
+                g_ = g + get_cost(x, y, tile)
                 h_ = abs(x_-x1)+abs(y_-y1)
                 queue.push((x_, y_, g_, state), g_+h_)
 
@@ -90,7 +105,7 @@ class AStar(object):
             state = state[3]
         result.pop(0)
 
-        return result
+        return result, final_cost
 
     def __neighbors(self, x, y, visited):
         '''Get the valid neighbors of a tile.'''
