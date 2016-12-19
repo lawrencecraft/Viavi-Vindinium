@@ -1,4 +1,4 @@
-from vindinium.models import Game
+ from vindinium.models import Game
 
 
 class BaseState(object):
