@@ -1,16 +1,17 @@
 import vindinium
+import vindinium.bots.states.state_definitions as states
 
 def main():
     # Create a vindinium client
     client = vindinium.Client(
         server='http://aigamesvm:9000',
         key='sui35va8',
-        mode='training', #or training
+        mode='arena', #or training
         n_turns=300,
         open_browser=True
     )
 
-    url = client.run(vindinium.bots.MinerBot())
+    url = client.run(vindinium.bots.StateMachineBot(states.GoToMineState()))
     print 'Replay in:', url
 
 if __name__ == '__main__':
