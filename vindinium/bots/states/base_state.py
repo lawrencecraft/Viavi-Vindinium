@@ -26,7 +26,12 @@ class BaseState(object):
                 v.search = self.search
                 print("returning state {}".format(v.state_name))
                 return v
-        return self
+        new_state = self.construct()
+        new_state.search = AStar(bot_state.game.map)
+        return new_state
+
+    def construct(self):
+        pass
 
     @staticmethod
     def hero_health_is_less_than(health_num):
@@ -146,6 +151,7 @@ class BaseState(object):
         return self._random()
 
     def go_to_nearest_mine(self, bot_state):
+
         x = bot_state.hero.x
         y = bot_state.hero.y
 
@@ -162,9 +168,17 @@ class BaseState(object):
                 min_cost = cost
 
         if final_command:
-            return final_command
-        return self._random()
+            return final_command, min_cost
+        return self._random(), 9000
 
+    @staticmethod
+    def nearest_neighbor(bot_state):
+        """
+
+        :type bot_state: BaseBot
+        """
+        distances = [ vin.utils.distance_manhattan(bot_state.hero.x, bot_state.hero.y, e.x, e.y) for e in bot_state.game.heroes if e.id != bot_state.hero.id]
+        return min(distances)
 
     def _random(self):
         return random.choice(['Stay', 'North', 'West', 'East', 'South'])
