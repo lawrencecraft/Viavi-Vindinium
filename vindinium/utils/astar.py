@@ -17,15 +17,20 @@ class AStar(object):
         obstacle_tiles (list): a list of obstacles tile VALUES.
         avoid_tiles (list): a list of avoidable tile VALUES.
     '''
-    def __init__(self, map, use_avoid_tiles=True):
+    def __init__(self, map, bot_state, use_avoid_tiles=True):
         '''Constructor.
 
         Args:
             map (vindinium.models.Map): the map instance.
+        :type bot_state: vindinium.bots.BaseBot
         '''
         self.cost_avoid = 4
-        self.cost_player = 1000
         self.cost_move = 1
+        self.cost_player = self.cost_move
+
+        if float(bot_state.hero.mine_count) / len(bot_state.game.mines) > 0.25:
+            self.cost_player = 1000
+
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
         if use_avoid_tiles:
             self.avoid_tiles = [vin.TILE_SPAWN]

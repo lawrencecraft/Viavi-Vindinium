@@ -18,7 +18,7 @@ class BaseState(object):
         :type bot_state: BaseBot
         :return:
         """
-        self.search = AStar(bot_state.game.map)
+        self.search = AStar(bot_state.game.map, bot_state)
         for t in self.transitions:
             if t.is_valid(bot_state):
                 print("state transition")
@@ -27,7 +27,7 @@ class BaseState(object):
                 print("returning state {}".format(v.state_name))
                 return v
         new_state = self.construct()
-        new_state.search = AStar(bot_state.game.map)
+        new_state.search = AStar(bot_state.game.map, bot_state)
         return new_state
 
     def construct(self):

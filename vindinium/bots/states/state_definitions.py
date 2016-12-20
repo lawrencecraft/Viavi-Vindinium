@@ -3,19 +3,21 @@ from .transition import Transition
 
 
 class GoToTavernState(BaseState):
-    def __init__(self):
+    def __init__(self, turns_stood_still=0):
         super(GoToTavernState, self).__init__()
         self.state_name = "GoToTavernState"
+        self.turns_stood_still = turns_stood_still
         self.transitions = [
             Transition(lambda t: self.hero_health_is_greater_than(80)(t)
-                       and self.nearest_neighbor(t) > 2, lambda: GoToMineState())
+                       and self.nearest_neighbor(t) > 2, lambda: GoToMineState()),
+            Transition(lambda t: self.turns_stood_still > 2, lambda: GoToMineState())
         ]
 
     def execute_move(self, bot_state):
         return self.go_to_nearest_tavern(bot_state)
 
     def construct(self):
-        return GoToTavernState()
+        return GoToTavernState(self.turns_stood_still + 1)
 
 
 class GoToMineState(BaseState):
