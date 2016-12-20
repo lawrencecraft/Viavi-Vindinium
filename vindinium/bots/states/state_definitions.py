@@ -20,7 +20,7 @@ class GoToTavernState(BaseState):
         return move
 
     def construct(self):
-        return GoToTavernState(self.turns_stood_still + 1)
+        return GoToTavernState(self.turns_stood_still)
 
 
 class GoToMineState(BaseState):
