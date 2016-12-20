@@ -47,8 +47,6 @@ class BaseState(object):
             :param bot_state:
             :return:
             """
-
-            print("health: {}, target health, {}".format(bot_state.hero.life, health_num))
             return bot_state.hero.life < health_num
         return hero_health_is_less_than_internal
 
@@ -115,7 +113,6 @@ class BaseState(object):
 
         # Compute path to the target
         path, cost = self.search.find(x, y, x_, y_, hero_tiles)
-        print("Path found with cost {}".format(cost))
         # if cost > self.cost_threshold:
         #     self.cost_threshold *= 2
         #     print("Standing still")
@@ -177,8 +174,39 @@ class BaseState(object):
 
         :type bot_state: BaseBot
         """
-        distances = [ vin.utils.distance_manhattan(bot_state.hero.x, bot_state.hero.y, e.x, e.y) for e in bot_state.game.heroes if e.id != bot_state.hero.id]
+        distances = [vin.utils.distance_manhattan(bot_state.hero.x, bot_state.hero.y, e.x, e.y) for e in bot_state.game.heroes if e.id != bot_state.hero.id]
         return min(distances)
+
+    @staticmethod
+    def get_highest_projected_score(bot_state):
+        """
+
+        :type bot_state: BaseBot
+        """
+        return max([BaseState.project_score(hero, bot_state.game) for hero in bot_state.game.heroes
+                    if hero.id != bot_state.hero.id])
+
+    @staticmethod
+    def my_projected_score(bot_state):
+        return BaseState.project_score(bot_state.hero, bot_state.game)
+
+    @staticmethod
+    def project_score(hero, game):
+        """
+
+        :type game: vin.models.Game
+        :type hero: vin.models.Hero
+        """
+        return (int(game.max_turns) - int(game.turn)) * int(hero.mine_count) + int(hero.gold)
+
+    def game_is_almost_over(self, bot_state):
+        percentage = self.game_percentage(bot_state.game)
+        print "Game percentage: {}".format(percentage)
+        return percentage > 0.75
+
+    def game_percentage(self, game):
+        print "Turn {}".format(game.turn)
+        return float(game.turn) / int(game.max_turns)
 
     def _random(self):
         return random.choice(['Stay', 'North', 'West', 'East', 'South'])

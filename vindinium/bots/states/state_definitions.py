@@ -31,7 +31,10 @@ class GoToMineState(BaseState):
             Transition(lambda t: self.hero_health_is_less_than(70)(t) and
                                  self.nearest_tavern_is()(t) == 1 and
                                  self.gold_is_greater_than(1)(t),
-                       lambda: GoToTavernState())
+                       lambda: GoToTavernState()),
+            Transition(lambda t: self.my_projected_score(t) - self.get_highest_projected_score(t) > 50 and
+                                 self.game_is_almost_over(t),
+                       lambda: DefensiveState())
         ]
 
     def execute_move(self, bot_state):
@@ -46,3 +49,19 @@ class GoToMineState(BaseState):
 
     def construct(self):
         return GoToMineState()
+
+
+class DefensiveState(BaseState):
+    def __init__(self):
+        super(DefensiveState, self).__init__()
+        self.state_name = "DefensiveState"
+        self.transitions = [
+            Transition(lambda t: self.get_highest_projected_score(t) > self.my_projected_score(t),
+                       lambda: GoToMineState())
+        ]
+
+    def execute_move(self, bot_state):
+        return self.go_to_nearest_tavern(bot_state)
+
+    def construct(self):
+        return DefensiveState()

@@ -53,7 +53,6 @@ class AStar(object):
             if current_tile in self.avoid_tiles:
                 return self.cost_avoid
             if (current_x, current_y) in player_tiles:
-                print("{}, {} are are in the enemy player, adding {} to cost", current_x, current_y, self.cost_player)
                 return self.cost_player
             return self.cost_move
 
