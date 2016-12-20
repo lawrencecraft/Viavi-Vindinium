@@ -26,6 +26,8 @@ class GoToMineState(BaseState):
         self.state_name = "GoToMineState"
         self.cached_result = None
         self.transitions = [
+            Transition(self.hero_health_is_less_than(22),
+                       lambda: GoToTavernState()),
             Transition(lambda t:
                        self.go_to_nearest_mine_wrapped(t)[1] + 20 > t.hero.life and
                        self.gold_is_greater_than(1)(t),
