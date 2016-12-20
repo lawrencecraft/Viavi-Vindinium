@@ -166,6 +166,7 @@ class BaseState(object):
 
         if final_command:
             return final_command, min_cost
+        print("this should not happen")
         return self._random(), 9000
 
     @staticmethod

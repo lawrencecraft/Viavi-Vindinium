@@ -14,7 +14,10 @@ class GoToTavernState(BaseState):
         ]
 
     def execute_move(self, bot_state):
-        return self.go_to_nearest_tavern(bot_state)
+        move = self.go_to_nearest_tavern(bot_state)
+        if move == 'Stay':
+            self.turns_stood_still += 1
+        return move
 
     def construct(self):
         return GoToTavernState(self.turns_stood_still + 1)
